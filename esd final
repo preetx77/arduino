@@ -1,0 +1,99 @@
+/*
+ * PROJECT: Arduino Flame Detection Alarm with LCD
+ * REFACTORED: Improved readability and tuned sensitivity.
+ *
+ * HARDWARE CONNECTIONS:
+ * 1. Flame Sensor (Analog Pin): A0
+ * 2. Buzzer: Pin 8
+ * 3. LED: Pin 7
+ * 4. LCD (I2C): SDA -> A4, SCL -> A5
+ */
+
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+
+// --- CONFIGURATION ---
+LiquidCrystal_I2C lcd(0x27, 16, 2); // Set LCD address to 0x27
+
+// --- PINS ---
+const int PIN_FLAME_SENSOR = A0; // Analog input
+const int PIN_BUZZER = 8;        // Alarm Output
+const int PIN_LED = 7;           // Visual Output
+
+// --- SENSITIVITY SETTINGS ---
+// Standard Logic: 
+// NO FIRE = High Value (800 - 1023)
+// FIRE DETECTED = Low Value (0 - 500)
+// We changed the threshold to 500. Any value BELOW 500 triggers the alarm.
+const int FLAME_THRESHOLD = 500; 
+
+void setup() {
+  // Initialize Serial for debugging
+  Serial.begin(9600);
+
+  // Initialize Pins
+  pinMode(PIN_BUZZER, OUTPUT);
+  pinMode(PIN_LED, OUTPUT);
+  pinMode(PIN_FLAME_SENSOR, INPUT);
+
+  // Initialize LCD
+  lcd.init();
+  lcd.backlight();
+
+  // Startup Message
+  lcd.setCursor(0, 0);
+  lcd.print("FLAME SYSTEM");
+  lcd.setCursor(0, 1);
+  lcd.print("Starting...");
+  
+  delay(2000);
+  lcd.clear();
+  lcd.print("Status: ARMED");
+  delay(1000);
+  lcd.clear();
+}
+
+void loop() {
+  // 1. READ SENSOR
+  int sensorValue = analogRead(PIN_FLAME_SENSOR);
+
+  // 2. DEBUGGING (Check Serial Monitor to see real values)
+  Serial.print("Sensor Value: ");
+  Serial.print(sensorValue);
+  Serial.print(" | Limit: ");
+  Serial.println(FLAME_THRESHOLD);
+
+  // 3. UPDATE LCD DISPLAY (Top Row)
+  lcd.setCursor(0, 0);
+  lcd.print("Sensor: ");
+  lcd.print(sensorValue);
+  lcd.print("    "); // Clear extra digits
+
+  // 4. ALARM LOGIC
+  // If sensor reads LESS than threshold, FIRE is present.
+  if (sensorValue < FLAME_THRESHOLD) {
+    triggerAlarm();
+  } else {
+    triggerSafe();
+  }
+
+  delay(200); // Update speed
+}
+
+// --- HELPER FUNCTIONS ---
+
+void triggerAlarm() {
+  digitalWrite(PIN_LED, HIGH);
+  tone(PIN_BUZZER, 2000); // 2KHz sound
+  
+  lcd.setCursor(0, 1);
+  lcd.print("! FLAME DETECTED !");
+}
+
+void triggerSafe() {
+  digitalWrite(PIN_LED, LOW);
+  noTone(PIN_BUZZER); // Stop sound
+  
+  lcd.setCursor(0, 1);
+  lcd.print("Status: Safe      ");
+}
