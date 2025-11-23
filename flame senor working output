@@ -1,0 +1,21 @@
+
+const int flameAnalog = A0;  // AO pin
+const int flameDigital = 2;  // DO pin (if available)
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(flameDigital, INPUT);
+  Serial.println("Flame Sensor Test Starting...");
+}
+
+void loop() {
+  int analogValue = analogRead(flameAnalog);   // 0 - 1023
+  int digitalValue = digitalRead(flameDigital);
+
+  Serial.print("Analog: ");
+  Serial.print(analogValue);
+  Serial.print("   Digital: ");
+  Serial.println(digitalValue);
+
+  delay(300);
+}
