@@ -1,0 +1,15 @@
+
+const int flamePin = A0;
+
+void setup() {
+  Serial.begin(9600);
+  delay(500);
+  Serial.println("Flame Sensor Test STARTED");
+}
+
+void loop() {
+  int value = analogRead(flamePin);
+  Serial.print("Analog: ");
+  Serial.println(value);
+  delay(300);
+}
