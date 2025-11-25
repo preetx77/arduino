@@ -1,0 +1,34 @@
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+const int sensorA = A0, buzzer = 8, sensorD = 7;
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(sensorD, INPUT);
+  pinMode(buzzer, OUTPUT);
+  lcd.init(); lcd.backlight(); lcd.clear();
+  lcd.setCursor(0,0); lcd.print("Fire Alarm Ready");
+  delay(1000); lcd.clear();
+}
+
+void loop() {
+  int analogValue = analogRead(sensorA);
+  int digitalValue = digitalRead(sensorD);
+  int flamePercent = map(1023 - analogValue, 0, 1023, 0, 100);
+  if (flamePercent < 18) flamePercent = 0;
+
+  Serial.print("Analog: "); Serial.print(analogValue);
+  Serial.print("   Digital: "); Serial.print(digitalValue);
+  Serial.print("   Flame%: "); Serial.println(flamePercent);
+
+  lcd.setCursor(0,0);
+  lcd.print("Flame: "); lcd.print(flamePercent); lcd.print("%   ");
+
+  lcd.setCursor(0,1);
+  if (flamePercent > 20) { lcd.print("! FIRE DETECTED "); tone(buzzer, 2000); }
+  else { lcd.print("Safe Environment  "); noTone(buzzer); }
+
+  delay(200);
+}
