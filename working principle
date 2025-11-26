@@ -1,0 +1,3 @@
+Our project works by detecting IR radiation from a flame using a flame sensor module. The analog or digital output is read by the microcontroller, which decides whether a fire condition exists. Traditionally, it only activates a buzzer and LCD.
+To improve safety, we propose using a WiFi-enabled Arduino board, such as ESP8266/ESP32, instead of a normal UNO. When fire is detected, the WiFi Arduino connects to a server or cloud platform like IFTTT, Blynk, or Google Firebase and automatically sends an SMS or mobile notification to the user. In short, the principle is:
+sensor detects → microcontroller processes → WiFi module communicates → SMS/notification delivered.”
